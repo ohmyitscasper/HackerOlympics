@@ -9,9 +9,7 @@
 
 
 
-//Functional prototype for the function that will take in an array of ips and 
-//return an array of char*'s which hold the ip combinations properly formatted.  
-char** combinations(int ip[], int);
+void combinations(int, int, int, int);
 
 int main(int argc, char **argv) 
 {
@@ -19,26 +17,32 @@ int main(int argc, char **argv)
 	int ipsLen = sizeof(ips)/sizeof(int);
 	int sendSocket;
 	struct	sockaddr_in serverAddr;
-
+	char** combinations = malloc();
 	if((sendSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
 	{
 		printf("socket() failed");
 	}
 	printf("The socket is %d", sendSocket);
 	
-	int* asd = malloc(1000);
+
 	
 	//memsetting the server struct to 0
 	memset(&serverAddr, 0, sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_addr.s_addr = inet_addr(servIP);
 
 
 }
 
 
-char** combinations(int ip[], int len) 
+/* This function returns the combinations of four numbers given to it. 
+ *	So when given 4 numbers, it returns a list of 4*3*2*1 valid
+ *	IP addressed which is 24
+ */
+void combinations(char** combos, int a, int b, int c, int d) 
 {
-	
-
-
+	char *temp = malloc(sizeof(char)*15);
+       	sprintf(temp, "%d.%d.%d.%d", a, b, c, d);
+		t
 }
 
