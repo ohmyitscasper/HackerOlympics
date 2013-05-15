@@ -7,9 +7,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-
-
-void combinations(int, int, int, int);
+void combinations(char**, int, int, int, int);
 
 int main(int argc, char **argv) 
 {
@@ -17,21 +15,22 @@ int main(int argc, char **argv)
 	int ipsLen = sizeof(ips)/sizeof(int);
 	int sendSocket;
 	struct	sockaddr_in serverAddr;
-	char** combinations = malloc();
+	char **combos = malloc(16*24024);
+
 	if((sendSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
 	{
 		printf("socket() failed");
 	}
-	printf("The socket is %d", sendSocket);
+	printf("The socket is %d\n", sendSocket);
 	
-
-	
+	combinations(combos, ips[0], ips[1], ips[2], ips[3]);
+	printf("Combos[0] %s\nCombos[1] %s\n",combos[0], combos[1]); 
+		
 	//memsetting the server struct to 0
-	memset(&serverAddr, 0, sizeof(serverAddr));
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_addr.s_addr = inet_addr(servIP);
-
-
+//	memset(&serverAddr, 0, sizeof(serverAddr));
+//	serverAddr.sin_family = AF_INET;
+//	serverAddr.sin_addr.s_addr = inet_addr(servIP);
+	free(combos);
 }
 
 
@@ -41,8 +40,7 @@ int main(int argc, char **argv)
  */
 void combinations(char** combos, int a, int b, int c, int d) 
 {
-	char *temp = malloc(sizeof(char)*15);
-       	sprintf(temp, "%d.%d.%d.%d", a, b, c, d);
-		t
+	sprintf(combos[0], "%d.%d.%d.%d", a, b, c, d);
+	sprintf(combos[1], "%d.%d.%d.%d", a, b, d, c);
+	printf("In combos:\nCombos[0] %s\nCombos[1] %s\n",combos[0], combos[1]); 
 }
-
