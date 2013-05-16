@@ -7,7 +7,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#define NUMIPS 24024
+
 void combinations(char**, int, int, int, int);
+int comb(int[], int);
 
 int main(int argc, char **argv) 
 {
@@ -15,8 +18,18 @@ int main(int argc, char **argv)
 	int ipsLen = sizeof(ips)/sizeof(int);
 	int sendSocket;
 	struct	sockaddr_in serverAddr;
-	char **combos = malloc(16*24024);
+	char **combos = malloc(NUMIPS * sizeof(char*));  //Setting up the memory to hold all of the ips.
 
+	//Setting the memory for the char*'s that hold the ips.
+	int a; 
+	for(a=0; a<24024; a++) {
+		combos[a] = malloc(16);
+		memset(combos[a], 0, 16);
+	}
+	
+	printf("NUM of combinations: %d\n", comb(ips, ipsLen));
+
+	//Getting the socket
 	if((sendSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
 	{
 		printf("socket() failed");
@@ -27,9 +40,12 @@ int main(int argc, char **argv)
 	printf("Combos[0] %s\nCombos[1] %s\n",combos[0], combos[1]); 
 		
 	//memsetting the server struct to 0
-//	memset(&serverAddr, 0, sizeof(serverAddr));
-//	serverAddr.sin_family = AF_INET;
-//	serverAddr.sin_addr.s_addr = inet_addr(servIP);
+	memset(&serverAddr, 0, sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_addr.s_addr = inet_addr(combos[0]);	//Temporarily setting the first ip to connect to. 
+
+	for(a = 0; a<24024; a++) 
+		free(combos[a]);
 	free(combos);
 }
 
@@ -40,7 +56,25 @@ int main(int argc, char **argv)
  */
 void combinations(char** combos, int a, int b, int c, int d) 
 {
-	sprintf(combos[0], "%d.%d.%d.%d", a, b, c, d);
-	sprintf(combos[1], "%d.%d.%d.%d", a, b, d, c);
+	sprintf(combos[0], "%d.%d.%d.%d\0", a, b, c, d);
+	sprintf(combos[1], "%d.%d.%d.%d\0", a, b, d, c);
+
 	printf("In combos:\nCombos[0] %s\nCombos[1] %s\n",combos[0], combos[1]); 
+}
+
+int comb(int *ip, int len)
+{
+	int a, b, c, d;
+	int count=0;
+	for(a=0; a<len; a++) {
+		for(b=0; b<len; b++) {
+			for(c=0; c<len; c++) {
+				for(d=0; d<len; d++) {
+					if(!(a==b) && !(a==c) && !(a==c) && !(a==d) && !(b==c) && !(b==d) && !(c==d))
+						count++;
+				} 
+			}
+		}
+	}
+	return count;
 }
