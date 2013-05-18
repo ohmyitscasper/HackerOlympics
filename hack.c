@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
 	//Setting the memory for the char*'s that hold the ips.
 	int a; 
-	for(a=0; a<24024; a++) 
+	for(a=0; a<NUMIPS; a++) 
 	{
 		combos[a] = malloc(16);
 		memset(combos[a], 0, 16);
@@ -50,14 +50,14 @@ int main(int argc, char **argv)
 		printf("Magic file couldn't be opened");
 	
 	//Main for loop that does the networking shit. 	
-	for(a = 0; a<24024; a++) 
+	for(a = 0; a<NUMIPS; a++) 
 	{		
 
 		//memsetting the server struct to 0
 		memset(&serverAddr, 0, sizeof(serverAddr));
 		serverAddr.sin_family = AF_INET;
-		serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");	//Temporarily setting the first ip to connect localhost for flask testing 
-		serverAddr.sin_port = htons(5000);
+		serverAddr.sin_addr.s_addr = inet_addr(combos[a]);	//Temporarily setting the first ip to connect localhost for flask testing 
+		serverAddr.sin_port = htons(80);
 
 		//Setting up the buffer that will send the request
 		memset((void*)sendRequest, 0, sizeof(sendRequest));
@@ -66,15 +66,17 @@ int main(int argc, char **argv)
 		sprintf(sendRequest, "POST /hackerolympics.json HTTP/1.1\r\nAccept: */*\r\nReferrer: %s\r\nAccept-Language: en-us\r\nContent-Type: application/x-www-form-urlencoded\r\nAccept-Encoding: gzip,deflate\r\nUser-Agent: Mozilla/4.0\r\nContent-Length: %d\r\nPragma: no-cache\r\nConnection: keep-alive\r\n\r\n%s", "127.0.0.1", strlen(postdata), postdata); 
 	
 		//Connecting to the IP
-		if(connect(sendSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)<0))  
+		if(connect(sendSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr))<0)  
 		{
-			printf("Connect with IP: %s failed.\n", "127.0.0.1");
+			printf("Connect with IP: %s failed.\n", combos[a]);
 			continue;
 		}		
+		else
+			printf("Connection established with IP: %s.\n", combos[a]);
 		
 		//Sending the request to the ip
 		if(send(sendSocket, sendRequest, strlen(sendRequest), 0) != strlen(sendRequest)) 
-			printf("Send failed");
+			printf("Send to IP: %s failed\n", combos[a]);
 		
 		//The following few lines of code check the http status code.
 	//	fgets(line, sizeof(line), sockFile);
@@ -94,7 +96,7 @@ int main(int argc, char **argv)
 	//		printf("%s\n", line);
 		
 		while(fgets(line, sizeof(line), sockFile)!=NULL)
-			fprintf(stdout, "%s", line);
+			fprintf(outfile, "%s", line);
 		
 
 
