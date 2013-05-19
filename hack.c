@@ -6,8 +6,10 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 #define NUMIPS 24024
+//#define TIMEOUT 100000
 
 int comb(char** combos, int[], int);
 
@@ -26,6 +28,7 @@ int main(int argc, char **argv)
 	char postdata[] = "name=Vanshil";
 	FILE *outfile;
 	char *outfileName = "magic";
+	struct timeval timeout;
 
 	//Setting the memory for the char*'s that hold the ips.
 	int a; 
@@ -46,8 +49,22 @@ int main(int argc, char **argv)
 	if((sockFile = fdopen(sendSocket, "r"))==NULL)
 		printf("File couldn't be opened");
 	
+	//Opening the writing file
 	if((outfile = fopen(outfileName, "w"))==NULL)
 		printf("Magic file couldn't be opened");
+	fseek(outfile, 0L, SEEK_END);
+
+
+	//setting the values in the timeout struct
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0; 
+	
+	//Changing socket settings to add a timeout. 
+	if(setsockopt(sendSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
+		printf("setsockopt failed\n");
+	
+	if(setsockopt(sendSocket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
+		printf("setsockopt failed\n");
 	
 	//Main for loop that does the networking shit. 	
 	for(a = 0; a<NUMIPS; a++) 
@@ -63,12 +80,12 @@ int main(int argc, char **argv)
 		memset((void*)sendRequest, 0, sizeof(sendRequest));
 
 		//The post request to send to the server. Currently sending the ip to localhost 
-		sprintf(sendRequest, "POST /hackerolympics.json HTTP/1.1\r\nAccept: */*\r\nReferrer: %s\r\nAccept-Language: en-us\r\nContent-Type: application/x-www-form-urlencoded\r\nAccept-Encoding: gzip,deflate\r\nUser-Agent: Mozilla/4.0\r\nContent-Length: %d\r\nPragma: no-cache\r\nConnection: keep-alive\r\n\r\n%s", "127.0.0.1", strlen(postdata), postdata); 
+		sprintf(sendRequest, "POST /hackerolympics.json HTTP/1.1\r\nAccept: */*\r\nReferrer: %s\r\nAccept-Language: en-us\r\nContent-Type: application/x-www-form-urlencoded\r\nAccept-Encoding: gzip,deflate\r\nUser-Agent: Mozilla/4.0\r\nContent-Length: %d\r\nPragma: no-cache\r\nConnection: keep-alive\r\n\r\n%s", combos[a], strlen(postdata), postdata); 
 	
 		//Connecting to the IP
 		if(connect(sendSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr))<0)  
 		{
-			printf("Connect with IP: %s failed.\n", combos[a]);
+//			printf("Connect with IP: %s failed.\n", combos[a]);
 			continue;
 		}		
 		else
